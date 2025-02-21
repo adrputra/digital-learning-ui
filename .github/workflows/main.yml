@@ -52,7 +52,7 @@ jobs:
           # Run the new container
           docker run -d --name ${{ secrets.NAME }} --memory 512m \
           --memory-reservation 256m \
-          --network mcu \
+          --network main \
           --restart unless-stopped \
           -e PORT=3001 \
           -p 3001:3001 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:latest
