@@ -7,6 +7,7 @@ import {
   IconFlask,
   IconHome,
   IconIndentIncrease,
+  IconNfc,
   IconSchool,
   IconUserSquareRounded,
 } from '@tabler/icons-react';
@@ -37,6 +38,9 @@ export default function SidebarIcon({ page }: { page: string }) {
     }
     if (page === '/parameter') {
       return <IconIndentIncrease />;
+    }
+    if (page === '/nfc') {
+      return <IconNfc />;
     }
     return <IconClockHour5 />;
   }, []);

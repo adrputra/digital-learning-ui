@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@lordicon/react": "^1.10.1",
+    "@lottiefiles/dotlottie-react": "^0.13.0",
     "@mantine/core": "7.12.2",
     "@mantine/form": "^7.13.1",
     "@mantine/hooks": "7.12.2",

@@ -1,6 +1,6 @@
-import { useUserStore } from '@/store/user';
 import { Loader, Select, SelectProps } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { useUserStore } from '@/store/user';
 
 interface Props extends SelectProps {
   placeholder?: string;
@@ -14,13 +14,13 @@ export default function UserInputSelection({
   searchable = true,
   ...props
 }: Props) {
-    const { userList, getUserList } = useUserStore();
-    const [opened, { toggle }] = useDisclosure(false);
+  const { userList, getUserList } = useUserStore();
+  const [opened, { toggle }] = useDisclosure(false);
 
-    const data = userList.map((value) => ({
-        value: value.username,
-        label: `${value.fullname} (${value.username})`,
-      }));
+  const data = userList.map((value) => ({
+    value: value.username,
+    label: `${value.fullname} (${value.username})`,
+  }));
 
   return (
     <Select
@@ -29,8 +29,11 @@ export default function UserInputSelection({
       data={data}
       searchable={searchable}
       nothingFoundMessage={nothingFoundMessage}
-      onDropdownOpen={getUserList}
-      onClick={toggle}
+      onDropdownOpen={() => {
+        getUserList();
+        toggle();
+      }}
+      onDropdownClose={toggle}
       rightSection={data.length === 0 && opened && <Loader />}
     />
   );

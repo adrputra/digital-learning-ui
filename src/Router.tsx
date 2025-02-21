@@ -1,5 +1,5 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import AppShellWrapper from './components/templates/AppShell';
+import AppShellWrapper from './components/template/AppShell';
 import { authenticator } from './libs/authenticator';
 import Login from './pages/login';
 import UserProfile from './pages/user/UserProfile';
@@ -10,6 +10,7 @@ import UserList from './pages/user/UserList';
 import Dataset from './pages/dataset';
 import DatasetDetail from './pages/dataset/detail';
 import Parameter from './pages/parameter';
+import NFC from './pages/nfc';
 
 const router = createBrowserRouter([
   {
@@ -68,6 +69,11 @@ const router = createBrowserRouter([
       {
         path: '/parameter',
         element: <Parameter />,
+        loader: authenticator,
+      },
+      {
+        path: '/nfc',
+        element: <NFC />,
         loader: authenticator,
       },
     ],

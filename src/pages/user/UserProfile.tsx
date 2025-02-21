@@ -1,4 +1,4 @@
-import { UserProfileHeader, UserProfileInfo } from '@/components/templates/UserProfile';
+import { UserProfileHeader, UserProfileInfo } from '@/components/template/UserProfile';
 import { Center, Stack } from '@mantine/core';
 
 export default function UserProfile() {
