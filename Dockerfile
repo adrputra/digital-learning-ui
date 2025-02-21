@@ -6,7 +6,7 @@ WORKDIR /app
 # Copy only the essential files for dependency installation
 COPY package.json bun.lockb ./
 # Install dependencies
-RUN bun install
+RUN bun install --production
 
 # Copy the rest of the source code, including Vite config
 COPY . .
