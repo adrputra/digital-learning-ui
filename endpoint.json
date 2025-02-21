@@ -1,0 +1,33 @@
+{
+  "publicURL": "http://localhost:8080/api",
+  "baseURL": "http://localhost:8080/api/service",
+  "unsplash": {
+    "base": "https://api.unsplash.com",
+    "random": "/photos/random"
+  },
+  "nfc": {
+    "base": "http://169.254.79.8",
+    "port": "5000",
+    "ping": "/ping",
+    "scan": "/read-card-block",
+    "write": "/write-card-block"
+  },
+  "login": "/login",
+  "logout": "/logout",
+  "register": "/register",
+  "user": "/user",
+  "institution": "/user/institutions",
+  "role": "/role",
+  "createRole": "/role/create",
+  "roleMapping": "/role/mapping",
+  "createRoleMapping": "/role/mapping/create",
+  "menu": "/role/menu",
+  "createMenu": "/role/menu/create",
+  "dataset": "/dataset",
+  "uploadDataset": "/dataset/upload",
+  "datasetList": "/dataset/list",
+  "trainModel": "/dataset/train-model",
+  "lastTrainModel": "/dataset/last-train-model",
+  "trainModelHistory": "/dataset/model-training-history",
+  "parameter": "/param"
+}

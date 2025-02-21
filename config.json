@@ -1,0 +1,8 @@
+{
+    "unsplash": {    
+        "application_id": "660297",
+        "access_key": "H0rPjVME11Nb5gYk0tiuTEWheWG59KlrZEulfZg3iD4",
+        "secret_key": "AUOwt2GN-A2rF5QSHB6xaSuWn8NKHjOMGEDccALLsaA"
+    },
+    "train_model_key": "train-model-interval"
+}
