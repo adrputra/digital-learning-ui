@@ -24,7 +24,7 @@ COPY --from=builder /app /app
 WORKDIR /app
 
 # Expose the port your production server will run on
-EXPOSE 3000
+EXPOSE 3001
 
 # Set the command to run the production server
 CMD ["bun", "run", "preview"]
