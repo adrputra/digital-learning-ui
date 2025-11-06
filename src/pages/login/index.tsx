@@ -18,15 +18,21 @@ export default function Login() {
   }, []);
 
   return (
-    <Grid>
-      <Grid.Col span={4} p={0}>
+    <Grid m={0} style={{ minHeight: '100vh', display: 'flex', alignItems: 'center' }}>
+      <Grid.Col visibleFrom="sm" span={{ base: 12, sm: 4 }} p={0}>
         <ImageContainer
           src={image}
           fit="cover"
-          h='99vh'
+          h='100vh'
         />
       </Grid.Col>
-      <Grid.Col span={8} p={0}>
+      <Grid.Col span={{ base: 12, sm: 8 }} p={0} style={{ 
+        display: 'flex', 
+        justifyContent: 'center',
+        padding: '0 10%',
+        height: '100vh',
+        alignItems: 'center'
+      }}>
         <LoginOrganism />
       </Grid.Col>
     </Grid>

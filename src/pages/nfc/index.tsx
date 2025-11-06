@@ -8,16 +8,19 @@ import WriteTagUser from '@/components/organisms/NFC/WriteTagUser';
 export default function NFC() {
   return (
     <Stack gap="xl">
-      <SimpleGrid cols={3}>
+      <SimpleGrid
+        cols={{ base: 1, xs: 2, md: 3 }}
+        spacing={{ base: 'md', sm: 'lg' }}
+      >
         <CheckNFCConnection />
         <WriteTag />
         <WriteTagUser />
       </SimpleGrid>
-      <Grid>
-        <Grid.Col span={4}>
+      <Grid gutter={{ base: 'md', sm: 'lg' }}>
+        <Grid.Col span={{ base: 12, sm: 4 }}>
           <ReadTag />
         </Grid.Col>
-        <Grid.Col span={8}>
+        <Grid.Col span={{ base: 12, sm: 8 }}>
           <ReadResult />
         </Grid.Col>
       </Grid>

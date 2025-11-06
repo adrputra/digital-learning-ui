@@ -26,7 +26,7 @@ export default function CheckNFCConnection() {
       <Text size="xl" fw="bold">
         NFC Device Connection
       </Text>
-      <Stack mt="md" gap="md" h="80%" justify="space-between">
+      <Stack mt="md" h="80%">
         <Stack>
           <Text size="sm" fw="bold">
             Last Connection :{' '}

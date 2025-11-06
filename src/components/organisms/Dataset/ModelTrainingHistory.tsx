@@ -2,13 +2,13 @@ import DeleteDialogue from "@/components/molecules/DeleteDialogue";
 import TableBody from "@/components/molecules/TableBody";
 import { formatDate } from "@/libs/utils";
 import { useDatasetStore } from "@/store/dataset";
-import { ActionIcon, Badge, Group, Paper, Stack , TableData, Text} from "@mantine/core";
+import { ActionIcon, Badge, Box, Group, Paper, Stack, TableData, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconEye, IconTrash } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
 
 export default function ModelTrainingHistory() {
-    const [deleteFormOpened, { open: openDeleteForm, close: closeDeleteForm }] = useDisclosure(false);
+  const [deleteFormOpened, { open: openDeleteForm, close: closeDeleteForm }] = useDisclosure(false);
   const [deleteID, setDeleteID] = useState<string>('');
   const [filter, setFilter] = useState<FilterModelTrainingHistory>({
     institution_id: '',
@@ -61,14 +61,18 @@ export default function ModelTrainingHistory() {
     await deleteDataset(deleteID);
     onCloseDeleteForm();
   };
-  
+
   return (
     <Paper p="md" shadow="xl">
       <Text size="xl" fw="bold">
         Model Training History
       </Text>
       <Stack p="sm" w="100%">
-        <TableBody tableData={tableData} />
+        <Box style={{ overflowX: 'auto', maxWidth: '100%' }}>
+          <Box style={{ minWidth: 800 }}>
+            <TableBody tableData={tableData} />
+          </Box>
+        </Box>
       </Stack>
       {/* <DeleteDialogue
         open={deleteFormOpened}

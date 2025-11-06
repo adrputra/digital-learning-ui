@@ -24,7 +24,7 @@ export default function WriteTag() {
       <Text size="xl" fw="bold">
         Write NFC Tag Block
       </Text>
-      <Stack mt="md" gap="md" h="80%">
+      <Stack mt="md" h="80%">
         <NFCBlockNumber value={blockNumber} setValue={setBlockNumber} />
         <TextInput
           placeholder="Enter value to write"

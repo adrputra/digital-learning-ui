@@ -17,16 +17,16 @@ export default function WriteTagUser() {
       <Text size="xl" fw="bold">
         Write NFC Tag User
       </Text>
-      <Stack mt="md" gap="md" h="80%" justify='space-between'>
+      <Stack mt="md" h="80%">
         <UserInputSelection
           withAsterisk
           required
           label="Username"
           nothingFoundMessage="User not found"
         />
-          <Button disabled={isButtonDisabled} onClick={handleWrite}>
-            Write
-          </Button>
+        <Button disabled={isButtonDisabled} onClick={handleWrite}>
+          Write
+        </Button>
       </Stack>
       {loading && <ScanTagModal open={loading} close={setLoading.close} />}
     </Paper>

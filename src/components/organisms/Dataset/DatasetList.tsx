@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { IconEye, IconTrash } from '@tabler/icons-react';
-import { ActionIcon, Group, Paper, Stack, TableData, Text } from '@mantine/core';
+import { ActionIcon, Box, Group, Paper, Stack, TableData, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import DeleteDialogue from '@/components/molecules/DeleteDialogue';
 import TableBody from '@/components/molecules/TableBody';
@@ -30,7 +30,7 @@ export default function DatasetList() {
       formatDate(value.created_at),
       <Group>
         <ActionIcon variant="default" style={{ border: 'none' }}>
-          <IconEye size={20} color="blue" onClick={() => navigate(`/dataset/${institutionID}/${value.username}${location.search}`)}/>
+          <IconEye size={20} color="blue" onClick={() => navigate(`/dataset/${institutionID}/${value.username}${location.search}`)} />
         </ActionIcon>
         <ActionIcon
           variant="default"
@@ -64,7 +64,11 @@ export default function DatasetList() {
         Dataset List
       </Text>
       <Stack p="sm" w="100%">
-        <TableBody tableData={tableData} />
+        <Box style={{ overflowX: 'auto', maxWidth: '100%' }}>
+          <Box style={{ minWidth: 800 }}>
+            <TableBody tableData={tableData} />
+          </Box>
+        </Box>
       </Stack>
       <DeleteDialogue
         open={deleteFormOpened}

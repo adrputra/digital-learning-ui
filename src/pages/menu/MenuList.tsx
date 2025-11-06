@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { IconCirclePlus, IconEdit, IconTrash } from '@tabler/icons-react';
-import { ActionIcon, Button, Center, Group, Stack, TableData } from '@mantine/core';
+import { ActionIcon, Box, Button, Center, Group, Stack, TableData } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import DeleteDialogue from '@/components/molecules/DeleteDialogue';
 import TableBody from '@/components/molecules/TableBody';
@@ -97,7 +97,11 @@ export default function MenuList() {
     <Center>
       <Stack p="sm" w="100%">
         <TableHeader title="Menu List" setFilter={setFilter} ActionButton={<ActionButton />} />
-        <TableBody tableData={tableData} />
+        <Box style={{ overflowX: 'auto', maxWidth: '100%' }}>
+          <Box style={{ minWidth: 800 }}>
+            <TableBody tableData={tableData} />
+          </Box>
+        </Box>
       </Stack>
       <AddForm open={addFormOpened} close={onCloseAddForm} isEdit={isEdit} data={data} />
       <DeleteDialogue

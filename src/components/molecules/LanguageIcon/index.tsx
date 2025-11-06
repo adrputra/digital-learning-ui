@@ -54,6 +54,7 @@ export default function LanguageIconMolecule() {
         >
           <LanguageIcon />
           <Text
+            visibleFrom="sm"
             size="sm"
             p="xs"
             style={{

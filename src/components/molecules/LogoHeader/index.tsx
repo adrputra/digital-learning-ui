@@ -5,7 +5,7 @@ export default function LogoHeader() {
   return (
     <Group>
       <Logo />
-      <Text size="lg" fw={900}>
+      <Text fz={{ base: 'md', sm: 'lg' }} fw={900} lineClamp={1}>
         Digital Learning
       </Text>
     </Group>
