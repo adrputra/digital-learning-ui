@@ -1,6 +1,6 @@
 {
-  "publicURL": "http://digilearn-api.yangpenting.fun/api",
-  "baseURL": "http://digilearn-api.yangpenting.fun/api/service",
+  "publicURL": "https://digilearn-api.yangpenting.fun/api",
+  "baseURL": "https://digilearn-api.yangpenting.fun/api/service",
   "unsplash": {
     "base": "https://api.unsplash.com",
     "random": "/photos/random"
