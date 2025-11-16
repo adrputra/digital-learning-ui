@@ -1,13 +1,23 @@
 import { create } from 'zustand';
 import { deleteMenu, inquiryMenu } from '@/api/menu';
-import { inquiryRoleList, inquiryRoleMapping } from '@/api/role';
-import { getFromIDB, storeToIDB } from '@/libs/utils';
+import {
+  createNewRole,
+  createNewRoleMapping,
+  deleteRoleMapping,
+  updateRoleMapping,
+  inquiryRoleList,
+  inquiryRoleMapping,
+} from '@/api/role';
+import { clearIndexedDB, getFromIDB, storeToIDB } from '@/libs/utils';
 import { showNotification } from '@mantine/notifications';
 
 interface RoleStore {
   roleMapping: RoleMapping[];
   setRoleMapping: (roleMapping: RoleMapping[]) => void;
   getRoleMapping: () => void;
+  createRoleMapping: (request: RequestNewRoleMapping) => void;
+  updateRoleMapping: (request: RequestNewRoleMapping) => void;
+  deleteRoleMapping: (id: string) => void;
 
   menuList: Menu[];
   setMenuList: (menuList: Menu[]) => void;
@@ -17,6 +27,7 @@ interface RoleStore {
   roleList: Role[];
   setRoleList: (roleList: Role[]) => void;
   getRoleList: () => void;
+  addNewRole: (request: RequestNewRole) => Promise<void>;
 
   resetRoleStore: () => void;
 }
@@ -29,6 +40,42 @@ export const useRoleStore = create<RoleStore>()((set) => ({
     inquiryRoleMapping().then((res) => {
       if (res.code === 200) {
         set({ roleMapping: res.data });
+      }
+    });
+  },
+
+  createRoleMapping: async (request: RequestNewRoleMapping) => {
+    await createNewRoleMapping(request).then((res) => {
+      if (res.code === 200) {
+        showNotification({
+          color: 'green',
+          title: 'Success',
+          message: res.message,
+        });
+      }
+    });
+  },
+
+  updateRoleMapping: async (request: RequestNewRoleMapping) => {
+    await updateRoleMapping(request).then((res) => {
+      if (res.code === 200) {
+        showNotification({
+          color: 'green',
+          title: 'Success',
+          message: res.message,
+        });
+      }
+    });
+  },
+
+  deleteRoleMapping: async (id: string) => {
+    await deleteRoleMapping(id).then((res) => {
+      if (res.code === 200) {
+        showNotification({
+          color: 'green',
+          title: 'Success',
+          message: res.message,
+        });
       }
     });
   },
@@ -108,6 +155,20 @@ export const useRoleStore = create<RoleStore>()((set) => ({
           }
         });
       });
+  },
+  
+  addNewRole: async (request: RequestNewRole) => {
+    await createNewRole(request).then((res) => {
+      if (res.code === 200) {
+        showNotification({
+          color: 'green',
+          title: 'Success',
+          message: res.message,
+        });
+        clearIndexedDB('param');
+        useRoleStore.getState().getRoleList();
+      }
+    });
   },
 
   resetRoleStore: () => {

@@ -15,12 +15,17 @@ export default function InstitutionCodeSelection({
 }: Props) {
     const { institutionList, getInstitutionList } = useUserStore();
     const [opened, { toggle }] = useDisclosure(false);
+
+    const data = institutionList.map((item) => ({
+      value: item.id,
+      label: item.name,
+    }));
       
   return (
     <Select
       {...props}
       placeholder={placeholder}
-      data={institutionList}
+      data={data}
       searchable={searchable}
       nothingFoundMessage={nothingFoundMessage}
       onDropdownOpen={getInstitutionList}

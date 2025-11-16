@@ -18,7 +18,7 @@ interface Menu {
   id: string;
   menu_name: string;
   menu_route: string;
-  role_id: string;
+  menu_id: string;
   created_at: string;
   updated_at: string;
   created_by: string;
@@ -43,7 +43,10 @@ interface RequestNewMenu {
 }
 
 interface RequestNewRoleMapping {
+  id: string;
   role_id: string;
   menu_id: string;
   access_method: string;
 }
+
+interface RequestNewRole extends Pick<Role, 'role_name' | 'role_desc'> {}

@@ -48,5 +48,5 @@ export const authenticator = async ({ request }: any) => {
 
 export const findMenuID = (data: Menu[], menu: string) => {
   return data.find((item: { menu_route: string }) => item.menu_route === menu)
-    ?.role_id;
+    ?.menu_id;
 };
