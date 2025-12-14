@@ -3,14 +3,15 @@ import { showNotification } from '@mantine/notifications';
 import { deleteDataset, getDatasetList, getLastTrainModel, getModelTrainingHistory, uploadDataset } from '@/api/dataset';
 import { useLayoutStore } from '../layout';
 import { formatDate } from '@/libs/utils';
+import { PaginationState, DEFAULT_PAGINATION, extractPagination, resetPagination } from '@/types/pagination';
 
 const { showLoading, hideLoading } = useLayoutStore.getState();
 
-interface DatasetStore {
+interface DatasetStore extends PaginationState {
   uploadDataset: (req: FormData) => Promise<any>;
 
   datasetList: Dataset[];
-  getDatasetList: () => Promise<any>;
+  getDatasetList: (page?: number, limit?: number) => Promise<any>;
 
   deleteDataset: (id: string) => Promise<any>;
 
@@ -32,7 +33,8 @@ export const useDatasetStore = create<DatasetStore>()((set) => ({
             title: 'Success',
             message: res.message,
           });
-          useDatasetStore.getState().getDatasetList();
+          const { page, limit } = useDatasetStore.getState();
+          useDatasetStore.getState().getDatasetList(page, limit);
         }
       })
       .finally(() => {
@@ -41,11 +43,18 @@ export const useDatasetStore = create<DatasetStore>()((set) => ({
   },
 
   datasetList: [],
-  getDatasetList: async () => {
+  ...DEFAULT_PAGINATION,
+  getDatasetList: async (page?: number, limit?: number) => {
     showLoading();
-    await getDatasetList().then((res) => {
+    const currentPage = page ?? DEFAULT_PAGINATION.page;
+    const currentLimit = limit ?? DEFAULT_PAGINATION.limit;
+    await getDatasetList(currentPage, currentLimit).then((res) => {
       if (res.code === 200) {
-        set({ datasetList: res.data });
+        const pagination = extractPagination(res.pagination, currentPage, currentLimit);
+        set({ 
+          datasetList: res.data || [],
+          ...pagination
+        });
       }
     }).finally(() => {
       hideLoading();
@@ -61,7 +70,8 @@ export const useDatasetStore = create<DatasetStore>()((set) => ({
           title: 'Success',
           message: res.message,
         });
-        useDatasetStore.getState().getDatasetList();
+        const { page, limit } = useDatasetStore.getState();
+        useDatasetStore.getState().getDatasetList(page, limit);
       }
     }).finally(() => {
       hideLoading();

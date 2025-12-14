@@ -1,18 +1,22 @@
+import { Suspense, lazy } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import AppShellWrapper from './components/template/AppShell';
 import { authenticator } from './libs/authenticator';
-import Login from './pages/login';
-import UserProfile from './pages/user/UserProfile';
-import StudentList from './pages/student/StudentList';
-import RoleList from './pages/role/RoleList';
-import MenuList from './pages/menu/MenuList';
-import UserList from './pages/user/UserList';
-import InstitutionList from './pages/institution/index';
-import Dataset from './pages/dataset';
-import DatasetDetail from './pages/dataset/detail';
-import Parameter from './pages/parameter';
-import NFC from './pages/nfc';
-import RoleMappingList from './pages/role/RoleMappingList';
+import PageLoader from './components/atoms/PageLoader';
+
+// Lazy load all page components
+const Login = lazy(() => import('./pages/login'));
+const UserProfile = lazy(() => import('./pages/user/UserProfile'));
+const StudentList = lazy(() => import('./pages/student/StudentList'));
+const RoleList = lazy(() => import('./pages/role/RoleList'));
+const MenuList = lazy(() => import('./pages/menu/MenuList'));
+const UserList = lazy(() => import('./pages/user/UserList'));
+const InstitutionList = lazy(() => import('./pages/institution/index'));
+const Dataset = lazy(() => import('./pages/dataset'));
+const DatasetDetail = lazy(() => import('./pages/dataset/detail'));
+const Parameter = lazy(() => import('./pages/parameter'));
+const NFC = lazy(() => import('./pages/nfc'));
+const RoleMappingList = lazy(() => import('./pages/role/RoleMappingList'));
 
 const router = createBrowserRouter([
   {
@@ -93,5 +97,9 @@ const router = createBrowserRouter([
 ]);
 
 export function Router() {
-  return <RouterProvider router={router} />;
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <RouterProvider router={router} />
+    </Suspense>
+  );
 }

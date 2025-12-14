@@ -2,15 +2,16 @@ import { createParameter, getParameterByKey, getParameterList, updateParameter }
 import { create } from "zustand";
 import { useLayoutStore } from "../layout";
 import { showNotification } from "@mantine/notifications";
+import { PaginationState, DEFAULT_PAGINATION, extractPagination, resetPagination } from '@/types/pagination';
 
 const { showLoading, hideLoading } = useLayoutStore.getState();
 
-interface ParameterStore {
+interface ParameterStore extends PaginationState {
     trainModelInterval: '';
     getTrainModelInterval: (key: string) => void;
     parameterList: Parameter[];
     setParameterList: (parameterList: Parameter[]) => void;
-    getParameterList: () => void;
+    getParameterList: (page?: number, limit?: number, search?: string, sortBy?: string, sortOrder?: 'ASC' | 'DESC') => void;
     createParameter: (parameter: RequestNewParameter) => void;
     updateParameter: (parameter: RequestNewParameter) => void;
     // deleteParameter: (id: string) => void;
@@ -29,11 +30,18 @@ export const useParameterStore = create<ParameterStore>()((set) => ({
     },
     parameterList: [],
     setParameterList: (parameterList: Parameter[]) => set({ parameterList }),
-    getParameterList: async () => {
+    ...DEFAULT_PAGINATION,
+    getParameterList: async (page?: number, limit?: number, search?: string, sortBy?: string, sortOrder?: 'ASC' | 'DESC') => {
         showLoading();
-        await getParameterList().then((res) => {
+        const currentPage = page ?? DEFAULT_PAGINATION.page;
+        const currentLimit = limit ?? DEFAULT_PAGINATION.limit;
+        await getParameterList(currentPage, currentLimit, search, sortBy, sortOrder).then((res) => {
             if (res.code === 200) {
-                set({ parameterList: res.data });
+                const pagination = extractPagination(res.pagination, currentPage, currentLimit);
+                set({ 
+                    parameterList: res.data || [],
+                    ...pagination
+                });
             }
         }).finally(() => {
             hideLoading();
@@ -69,5 +77,5 @@ export const useParameterStore = create<ParameterStore>()((set) => ({
         });
     },
 
-    resetParameterStore: () => set({ parameterList: [] }),
+    resetParameterStore: () => set({ parameterList: [], ...resetPagination() }),
 }));

@@ -10,23 +10,27 @@ import {
 } from '@/api/role';
 import { clearIndexedDB, getFromIDB, storeToIDB } from '@/libs/utils';
 import { showNotification } from '@mantine/notifications';
+import { useLayoutStore } from '../layout';
+import { PaginationState, DEFAULT_PAGINATION, extractPagination, resetPagination } from '@/types/pagination';
 
-interface RoleStore {
+const { showLoading, hideLoading } = useLayoutStore.getState();
+
+interface RoleStore extends PaginationState {
   roleMapping: RoleMapping[];
   setRoleMapping: (roleMapping: RoleMapping[]) => void;
-  getRoleMapping: () => void;
+  getRoleMapping: (page?: number, limit?: number, search?: string, sortBy?: string, sortOrder?: 'ASC' | 'DESC') => void;
   createRoleMapping: (request: RequestNewRoleMapping) => void;
   updateRoleMapping: (request: RequestNewRoleMapping) => void;
   deleteRoleMapping: (id: string) => void;
 
   menuList: Menu[];
   setMenuList: (menuList: Menu[]) => void;
-  getMenuList: () => void;
+  getMenuList: (page?: number, limit?: number, search?: string, sortBy?: string, sortOrder?: 'ASC' | 'DESC') => void;
   deleteMenu: (id: string) => void;
 
   roleList: Role[];
   setRoleList: (roleList: Role[]) => void;
-  getRoleList: () => void;
+  getRoleList: (page?: number, limit?: number, search?: string, sortBy?: string, sortOrder?: 'ASC' | 'DESC') => void;
   addNewRole: (request: RequestNewRole) => Promise<void>;
 
   resetRoleStore: () => void;
@@ -35,16 +39,27 @@ interface RoleStore {
 export const useRoleStore = create<RoleStore>()((set) => ({
   roleMapping: [],
   setRoleMapping: (roleMapping: RoleMapping[]) => set({ roleMapping }),
+  ...DEFAULT_PAGINATION,
 
-  getRoleMapping: () => {
-    inquiryRoleMapping().then((res) => {
+  getRoleMapping: (page?: number, limit?: number, search?: string, sortBy?: string, sortOrder?: 'ASC' | 'DESC') => {
+    const currentPage = page ?? DEFAULT_PAGINATION.page;
+    const currentLimit = limit ?? DEFAULT_PAGINATION.limit;
+    showLoading();
+    inquiryRoleMapping(currentPage, currentLimit, search, sortBy, sortOrder).then((res) => {
       if (res.code === 200) {
-        set({ roleMapping: res.data });
+        const pagination = extractPagination(res.pagination, currentPage, currentLimit);
+        set({ 
+          roleMapping: res.data || [],
+          ...pagination
+        });
       }
+    }).finally(() => {
+      hideLoading();
     });
   },
 
   createRoleMapping: async (request: RequestNewRoleMapping) => {
+    showLoading();
     await createNewRoleMapping(request).then((res) => {
       if (res.code === 200) {
         showNotification({
@@ -52,11 +67,16 @@ export const useRoleStore = create<RoleStore>()((set) => ({
           title: 'Success',
           message: res.message,
         });
+        const { page, limit } = useRoleStore.getState();
+        useRoleStore.getState().getRoleMapping(page, limit, undefined, undefined, undefined);
       }
+    }).finally(() => {
+      hideLoading();
     });
   },
 
   updateRoleMapping: async (request: RequestNewRoleMapping) => {
+    showLoading();
     await updateRoleMapping(request).then((res) => {
       if (res.code === 200) {
         showNotification({
@@ -64,11 +84,16 @@ export const useRoleStore = create<RoleStore>()((set) => ({
           title: 'Success',
           message: res.message,
         });
+        const { page, limit } = useRoleStore.getState();
+        useRoleStore.getState().getRoleMapping(page, limit, undefined, undefined, undefined);
       }
+    }).finally(() => {
+      hideLoading();
     });
   },
 
   deleteRoleMapping: async (id: string) => {
+    showLoading();
     await deleteRoleMapping(id).then((res) => {
       if (res.code === 200) {
         showNotification({
@@ -76,43 +101,77 @@ export const useRoleStore = create<RoleStore>()((set) => ({
           title: 'Success',
           message: res.message,
         });
+        const { page, limit } = useRoleStore.getState();
+        useRoleStore.getState().getRoleMapping(page, limit, undefined, undefined, undefined);
       }
+    }).finally(() => {
+      hideLoading();
     });
   },
 
   menuList: [],
   setMenuList: (menuList: Menu[]) => set({ menuList }),
 
-  getMenuList: () => {
-    getFromIDB<Menu[]>('param', 'param', 'menuList')
-      .then((res) => {
-        if (!res) {
-          inquiryMenu().then((apiRes) => {
+  getMenuList: (page?: number, limit?: number, search?: string, sortBy?: string, sortOrder?: 'ASC' | 'DESC') => {
+    const currentPage = page ?? DEFAULT_PAGINATION.page;
+    const currentLimit = limit ?? DEFAULT_PAGINATION.limit;
+    showLoading();
+    // If search or sort is provided, bypass cache and fetch from API
+    if (search || sortBy || sortOrder) {
+      inquiryMenu(currentPage, currentLimit, search, sortBy, sortOrder).then((apiRes) => {
+        if (apiRes.code === 200) {
+          const menuData = apiRes.data || [];
+          const pagination = extractPagination(apiRes.pagination, currentPage, currentLimit);
+          set({ 
+            menuList: menuData,
+            ...pagination
+          });
+        }
+      }).finally(() => {
+        hideLoading();
+      });
+    } else {
+      getFromIDB<Menu[]>('param', 'param', 'menuList')
+        .then((res) => {
+          if (!res) {
+            inquiryMenu(currentPage, currentLimit, search, sortBy, sortOrder).then((apiRes) => {
+              if (apiRes.code === 200) {
+                const menuData = apiRes.data || [];
+                const pagination = extractPagination(apiRes.pagination, currentPage, currentLimit);
+                storeToIDB('param', 'param', 'menuList', menuData).then(() => {
+                  set({ 
+                    menuList: menuData,
+                    ...pagination
+                  });
+                });
+              }
+            });
+          } else {
+            set({ menuList: res });
+          }
+        })
+        .catch((error) => {
+          console.error('Error retrieving from IndexedDB:', error);
+          inquiryMenu(currentPage, currentLimit, search, sortBy, sortOrder).then((apiRes) => {
             if (apiRes.code === 200) {
-              const menuData = apiRes.data;
+              const menuData = apiRes.data || [];
+              const pagination = extractPagination(apiRes.pagination, currentPage, currentLimit);
               storeToIDB('param', 'param', 'menuList', menuData).then(() => {
-                set({ menuList: menuData });
+                set({ 
+                  menuList: menuData,
+                  ...pagination
+                });
               });
             }
           });
-        } else {
-          set({ menuList: res });
-        }
-      })
-      .catch((error) => {
-        console.error('Error retrieving from IndexedDB:', error);
-        inquiryMenu().then((apiRes) => {
-          if (apiRes.code === 200) {
-            const menuData = apiRes.data;
-            storeToIDB('param', 'param', 'menuList', menuData).then(() => {
-              set({ menuList: menuData });
-            });
-          }
+        }).finally(() => {
+          hideLoading();
         });
-      });
+    }
   },
 
   deleteMenu: async (id: string) => {
+    showLoading();
     await deleteMenu(id).then((res) => {
       if (res.code === 200) {
         showNotification({
@@ -122,42 +181,74 @@ export const useRoleStore = create<RoleStore>()((set) => ({
         });
         useRoleStore.getState().getMenuList();
       }
-    })
+    }).finally(() => {
+      hideLoading();
+    });
   },
 
   roleList: [],
   setRoleList: (roleList: Role[]) => set({ roleList }),
-  getRoleList: () => {
-    getFromIDB<Role[]>('param', 'param', 'roleList')
-      .then((res) => {
-        if (!res) {
-          inquiryRoleList().then((apiRes) => {
+  getRoleList: (page?: number, limit?: number, search?: string, sortBy?: string, sortOrder?: 'ASC' | 'DESC') => {
+    const currentPage = page ?? DEFAULT_PAGINATION.page;
+    const currentLimit = limit ?? DEFAULT_PAGINATION.limit;
+    showLoading();
+    // If search or sort is provided, bypass cache and fetch from API
+    if (search || sortBy || sortOrder) {
+      inquiryRoleList(currentPage, currentLimit, search, sortBy, sortOrder).then((apiRes) => {
+        if (apiRes.code === 200) {
+          const roleData = apiRes.data || [];
+          const pagination = extractPagination(apiRes.pagination, currentPage, currentLimit);
+          set({ 
+            roleList: roleData,
+            ...pagination
+          });
+        }
+      }).finally(() => {
+        hideLoading();
+      });
+    } else {
+      getFromIDB<Role[]>('param', 'param', 'roleList')
+        .then((res) => {
+          if (!res) {
+            inquiryRoleList(currentPage, currentLimit, search, sortBy, sortOrder).then((apiRes) => {
+              if (apiRes.code === 200) {
+                const roleData = apiRes.data || [];
+                const pagination = extractPagination(apiRes.pagination, currentPage, currentLimit);
+                storeToIDB('param', 'param', 'roleList', roleData).then(() => {
+                  set({ 
+                    roleList: roleData,
+                    ...pagination
+                  });
+                });
+              }
+            });
+          } else {
+            set({ roleList: res });
+          }
+        })
+        .catch((error) => {
+          console.error('Error retrieving from IndexedDB:', error);
+
+          inquiryRoleList(currentPage, currentLimit, search, sortBy, sortOrder).then((apiRes) => {
             if (apiRes.code === 200) {
-              const roleData = apiRes.data;
+              const roleData = apiRes.data || [];
+              const pagination = extractPagination(apiRes.pagination, currentPage, currentLimit);
               storeToIDB('param', 'param', 'roleList', roleData).then(() => {
-                set({ roleList: roleData });
+                set({ 
+                  roleList: roleData,
+                  ...pagination
+                });
               });
             }
           });
-        } else {
-          set({ roleList: res });
-        }
-      })
-      .catch((error) => {
-        console.error('Error retrieving from IndexedDB:', error);
-
-        inquiryRoleList().then((apiRes) => {
-          if (apiRes.code === 200) {
-            const roleData = apiRes.data;
-            storeToIDB('param', 'param', 'roleList', roleData).then(() => {
-              set({ roleList: roleData });
-            });
-          }
+        }).finally(() => {
+          hideLoading();
         });
-      });
+    }
   },
-  
+
   addNewRole: async (request: RequestNewRole) => {
+    showLoading();
     await createNewRole(request).then((res) => {
       if (res.code === 200) {
         showNotification({
@@ -168,10 +259,12 @@ export const useRoleStore = create<RoleStore>()((set) => ({
         clearIndexedDB('param');
         useRoleStore.getState().getRoleList();
       }
+    }).finally(() => {
+      hideLoading();
     });
   },
 
   resetRoleStore: () => {
-    set({ roleMapping: [], menuList: [] });
+    set({ roleMapping: [], menuList: [], roleList: [], ...resetPagination() });
   },
 }));

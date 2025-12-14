@@ -2,13 +2,15 @@ import { create } from 'zustand';
 import { showNotification } from '@mantine/notifications';
 import { createNewUser, getAllUser, getInstitutionList, updateUser, deleteUser } from '@/api/user';
 import { useLayoutStore } from '../layout';
+import { PaginationState, DEFAULT_PAGINATION, extractPagination, resetPagination } from '@/types/pagination';
 
 const { showLoading, hideLoading } = useLayoutStore.getState();
 
-interface UserStore {
+interface UserStore extends PaginationState {
   userList: User[];
   setUserList: (userList: User[]) => void;
-  getUserList: () => void;
+  getUserList: (page?: number, limit?: number, search?: string, sortBy?: string, sortOrder?: 'ASC' | 'DESC') => void;
+  setPagination: (page: number, limit: number, total: number) => void;
 
   createNewUser: (req: RequestNewUser) => void;
   updateUser: (req: RequestEditUser) => void;
@@ -23,11 +25,22 @@ interface UserStore {
 export const useUserStore = create<UserStore>()((set) => ({
   userList: [],
   setUserList: (userList: User[]) => set({ userList }),
-  getUserList: async () => {
-    getAllUser().then((res) => {
+  ...DEFAULT_PAGINATION,
+  setPagination: (page: number, limit: number, total: number) => set({ page, limit, total }),
+  getUserList: async (page?: number, limit?: number, search?: string, sortBy?: string, sortOrder?: 'ASC' | 'DESC') => {
+    showLoading();
+    const currentPage = page ?? DEFAULT_PAGINATION.page;
+    const currentLimit = limit ?? DEFAULT_PAGINATION.limit;
+    getAllUser(currentPage, currentLimit, search, sortBy, sortOrder).then((res) => {
       if (res.code === 200) {
-        set({ userList: res.data });
+        const pagination = extractPagination(res.pagination, currentPage, currentLimit);
+        set({ 
+          userList: res.data || [],
+          ...pagination
+        });
       }
+    }).finally(() => {
+      hideLoading();
     });
   },
 
@@ -58,7 +71,8 @@ export const useUserStore = create<UserStore>()((set) => ({
             title: 'Success',
             message: res.message,
           });
-          useUserStore.getState().getUserList();
+          const { page, limit } = useUserStore.getState();
+          useUserStore.getState().getUserList(page, limit, undefined, undefined, undefined);
         }
       })
       .finally(() => {
@@ -75,7 +89,8 @@ export const useUserStore = create<UserStore>()((set) => ({
           title: 'Success',
           message: res.message,
         });
-        useUserStore.getState().getUserList();
+        const { page, limit } = useUserStore.getState();
+        useUserStore.getState().getUserList(page, limit);
       }
     }).finally(() => {
       hideLoading();
@@ -92,6 +107,6 @@ export const useUserStore = create<UserStore>()((set) => ({
   },
 
   resetUserStore: () => {
-    set({ userList: [] });
+    set({ userList: [], ...resetPagination() });
   },
 }));

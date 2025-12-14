@@ -35,9 +35,9 @@ export const uploadDataset = async (req: FormData) => {
   }
 };
 
-export const getDatasetList = async () => {
+export const getDatasetList = async (page?: number, limit?: number) => {
   try {
-    console.info('[REQ GET ALL DATASET]');
+    console.info('[REQ GET ALL DATASET]', { page, limit });
     const auth = useMenuStore.getState();
     const menu_id = findMenuID(auth.menuList, '/');
     const header = {
@@ -46,7 +46,20 @@ export const getDatasetList = async () => {
       }),
       ...(menu_id && { 'app-menu-id': menu_id }),
     };
-    const response = await sendRequestGET(`${endpoint.baseURL}${endpoint.dataset}`, header);
+    
+    let url = `${endpoint.baseURL}${endpoint.dataset}`;
+    const params = new URLSearchParams();
+    if (page !== undefined) {
+      params.append('page', page.toString());
+    }
+    if (limit !== undefined) {
+      params.append('limit', limit.toString());
+    }
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+    
+    const response = await sendRequestGET(url, header);
 
     return response;
   } catch (error: any) {

@@ -1,14 +1,15 @@
 import React from 'react';
-import { Group, Paper, Select, Text, Stack, Box } from '@mantine/core';
+import { Group, Paper, Text, Stack, Box } from '@mantine/core';
 import SearchBar from '../SearchBar';
 
 interface Props {
   title?: string;
-  setFilter?: (filter: string) => void;
+  onSearch?: (search: string) => void;
   ActionButton?: React.ReactNode;
+  searchPlaceholder?: string;
 }
 
-export default function TableHeader({ title, setFilter, ActionButton }: Props) {
+export default function TableHeader({ title, onSearch, ActionButton, searchPlaceholder }: Props) {
   return (
     <Paper p="sm" shadow="md" w="100%">
       <Stack gap="md">
@@ -19,24 +20,18 @@ export default function TableHeader({ title, setFilter, ActionButton }: Props) {
             </Text>
             {ActionButton}
           </Group>
-          {setFilter && <Box mt="xs"><SearchBar setFilter={setFilter} /></Box>}
+          {onSearch && <Box mt="xs"><SearchBar onSearch={onSearch} placeholder={searchPlaceholder} /></Box>}
         </Box>
 
         <Box visibleFrom="sm">
           <Group justify="space-between">
-            {setFilter ? <SearchBar setFilter={setFilter} /> : <div />}
+            {onSearch ? <SearchBar onSearch={onSearch} placeholder={searchPlaceholder} /> : <div />}
             <Group>
               <Text size="xl" fw="bold">
                 {title}
               </Text>
             </Group>
             <Group>
-              <Select
-                placeholder="Pick value"
-                allowDeselect
-                defaultValue="React"
-                data={['React', 'Angular', 'Vue', 'Svelte']}
-              />
               {ActionButton}
             </Group>
           </Group>

@@ -5,9 +5,9 @@ import { sendRequestDELETE, sendRequestGET, sendRequestPOST, sendRequestPUT } fr
 import { useAuthStore } from '@/store/auth';
 import { useMenuStore } from '@/store/menu';
 
-export const inquiryMenu = async () => {
+export const inquiryMenu = async (page?: number, limit?: number, search?: string, sortBy?: string, sortOrder?: 'ASC' | 'DESC') => {
   try {
-    console.info('[REQ INQUIRY MENU]');
+    console.info('[REQ INQUIRY MENU]', { page, limit, search, sortBy, sortOrder });
     const auth = useMenuStore.getState();
     const menu_id = findMenuID(auth.menuList, '/');
     const header = {
@@ -16,7 +16,29 @@ export const inquiryMenu = async () => {
       }),
       ...(menu_id && { 'app-menu-id': menu_id }),
     };
-    const response = await sendRequestGET(`${endpoint.baseURL}${endpoint.menu}`, header);
+    
+    let url = `${endpoint.baseURL}${endpoint.menu}`;
+    const params = new URLSearchParams();
+    if (page !== undefined) {
+      params.append('page', page.toString());
+    }
+    if (limit !== undefined) {
+      params.append('limit', limit.toString());
+    }
+    if (search) {
+      params.append('search', search);
+    }
+    if (sortBy) {
+      params.append('sort_by', sortBy);
+    }
+    if (sortOrder) {
+      params.append('sort_order', sortOrder);
+    }
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+    
+    const response = await sendRequestGET(url, header);
 
     return response;
   } catch (error: any) {

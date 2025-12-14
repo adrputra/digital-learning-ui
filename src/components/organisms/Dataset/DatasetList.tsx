@@ -15,11 +15,11 @@ export default function DatasetList() {
   const [deleteFormOpened, { open: openDeleteForm, close: closeDeleteForm }] = useDisclosure(false);
   const [deleteID, setDeleteID] = useState<string>('');
 
-  const { datasetList, getDatasetList, deleteDataset } = useDatasetStore();
+  const { datasetList, getDatasetList, deleteDataset, page, total, limit, totalRecords } = useDatasetStore();
   const { institutionID } = useAuthStore();
 
   useEffect(() => {
-    getDatasetList();
+    getDatasetList(1);
   }, []);
 
   const tableData: TableData = {
@@ -58,6 +58,10 @@ export default function DatasetList() {
     onCloseDeleteForm();
   };
 
+  const handlePageChange = (newPage: number, newLimit?: number) => {
+    getDatasetList(newPage, newLimit ?? limit);
+  };
+
   return (
     <Paper p="md" shadow="xl">
       <Text size="xl" fw="bold">
@@ -66,7 +70,14 @@ export default function DatasetList() {
       <Stack p="sm" w="100%">
         <Box style={{ overflowX: 'auto', maxWidth: '100%' }}>
           <Box style={{ minWidth: 800 }}>
-            <TableBody tableData={tableData} />
+            <TableBody 
+              tableData={tableData} 
+              page={page} 
+              total={total} 
+              limit={limit}
+              totalRecords={totalRecords}
+              onPageChange={handlePageChange}
+            />
           </Box>
         </Box>
       </Stack>

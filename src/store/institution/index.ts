@@ -2,10 +2,11 @@ import { addNewInstitution, getInstitutionList, updateInstitution, deleteInstitu
 import { showNotification } from "@mantine/notifications";
 import { create } from "zustand";
 import { useLayoutStore } from "../layout";
+import { PaginationState, DEFAULT_PAGINATION, extractPagination, resetPagination } from '@/types/pagination';
 
-interface InstitutionStore {
+interface InstitutionStore extends PaginationState {
     institutionList: Institution[]
-    getInstitutionList: () => void;
+    getInstitutionList: (page?: number, limit?: number, search?: string, sortBy?: string, sortOrder?: 'ASC' | 'DESC') => void;
     addInstitution: (institution: RequestNewInstitution) => Promise<void>;
     updateInstitution: (institution: RequestEditInstitution) => Promise<void>;
     deleteInstitution: (id: string) => Promise<void>;
@@ -16,11 +17,18 @@ const { showLoading, hideLoading } = useLayoutStore.getState();
 
 export const useInstitutionStore = create<InstitutionStore>()((set) => ({
     institutionList: [],
-    getInstitutionList: async () => {
+    ...DEFAULT_PAGINATION,
+    getInstitutionList: async (page?: number, limit?: number, search?: string, sortBy?: string, sortOrder?: 'ASC' | 'DESC') => {
         showLoading();
-        await getInstitutionList().then((res) => {
+        const currentPage = page ?? DEFAULT_PAGINATION.page;
+        const currentLimit = limit ?? DEFAULT_PAGINATION.limit;
+        await getInstitutionList(currentPage, currentLimit, search, sortBy, sortOrder).then((res) => {
             if (res.code === 200 && res.data) {
-                set({ institutionList: res.data });
+                const pagination = extractPagination(res.pagination, currentPage, currentLimit);
+                set({ 
+                    institutionList: res.data || [],
+                    ...pagination
+                });
             } else {
                 showNotification({
                     color: 'red',
@@ -49,7 +57,8 @@ export const useInstitutionStore = create<InstitutionStore>()((set) => ({
                 })
             }
         })
-        await useInstitutionStore.getState().getInstitutionList();
+        const { page, limit } = useInstitutionStore.getState();
+        await useInstitutionStore.getState().getInstitutionList(page, limit, undefined, undefined, undefined);
     },
 
     updateInstitution: async (institution: RequestEditInstitution) => {
@@ -62,7 +71,8 @@ export const useInstitutionStore = create<InstitutionStore>()((set) => ({
                 })
             }
         })
-        await useInstitutionStore.getState().getInstitutionList();
+        const { page, limit } = useInstitutionStore.getState();
+        await useInstitutionStore.getState().getInstitutionList(page, limit, undefined, undefined, undefined);
     },
 
     deleteInstitution: async (id: string) => {
@@ -75,10 +85,11 @@ export const useInstitutionStore = create<InstitutionStore>()((set) => ({
                 })
             }
         })
-        await useInstitutionStore.getState().getInstitutionList();
+        const { page, limit } = useInstitutionStore.getState();
+        await useInstitutionStore.getState().getInstitutionList(page, limit, undefined, undefined, undefined);
     },
 
     resetInstitutionStore: () => {
-        set({ institutionList: [] });
+        set({ institutionList: [], ...resetPagination() });
     }
 }))

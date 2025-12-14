@@ -17,6 +17,7 @@ export default function AddForm({ open, close }: Props) {
   const [loading, setLoading] = useDisclosure(false);
   const { getRoleMapping } = useRoleStore();
   const [request, setRequest] = useState<RequestNewRoleMapping>({
+    id: '',
     menu_id: '',
     role_id: '',
     access_method: '',
